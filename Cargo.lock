@@ -18,6 +18,13 @@ name = "dllinjector"
 version = "0.1.0"
 dependencies = [
  "bindings",
+ "injecteddll",
+]
+
+[[package]]
+name = "injecteddll"
+version = "0.1.0"
+dependencies = [
  "windows",
 ]
 
