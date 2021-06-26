@@ -196,7 +196,6 @@ impl Process {
             )
         });
 
-        println!("th {:?} {}", thread_handle, dll_path);
         if (!thread_handle.is_valid()) {
             return Err(String::from("Unable to launch remote thread"));
         }
