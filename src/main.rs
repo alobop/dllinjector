@@ -71,7 +71,7 @@ fn inject_dll(id:u32)
         println!("Opened process");
     }
 
-    let path = "E:\\injecteddll\\target\\debug\\injecteddll.dll";
+    let path = "Z:\\Rust\\dllinjector\\injecteddll\\target\\debug\\injecteddll.dll";
 
     let dll_path_address = unsafe{VirtualAllocEx(process_handle, std::ptr::null_mut(), path.len() + 1, MEM_COMMIT, PAGE_READWRITE)};
 

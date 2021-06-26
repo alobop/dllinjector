@@ -1,18 +1,13 @@
 [package]
-name = "injecteddll"
+name = "bindings_dll"
 version = "0.1.0"
 authors = ["Alejandro Lobo <alobop@outlook.com>, Asher Davila"]
 edition = "2018"
-
-[lib]
-crate_type = ["cdylib"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 windows = "0.11.0"
-bindings_dll = { path = "bindings_dll" }
 
 [build-dependencies]
 windows = "0.11.0"
-
