@@ -5,11 +5,9 @@ use bindings::Windows::Win32::System::Memory::*;
 use bindings::Windows::Win32::System::ProcessStatus::*;
 use bindings::Windows::Win32::System::Threading::*;
 use bindings::Windows::Win32::System::WindowsProgramming::*;
-use winsafe::{SafeHandle, winexec};
-
 use core::ffi::c_void;
-
 use std::{convert::TryInto, fmt, ptr::null_mut, str, u32};
+use winsafe::{winexec, SafeHandle};
 
 const MAX_PROCESS_LIST_SIZE: usize = 1204;
 const INITIAL_PROCESS_LIST_SIZE: usize = 128;
@@ -65,16 +63,20 @@ impl Process {
     }
 
     pub fn list_current_processes() -> winsafe::Result<Vec<Process>> {
-        let mut process_count: u32 = 0;
+        let mut process_buffer_size: u32 = 0;
         let mut processes_ids: Vec<u32> = Vec::new();
         processes_ids.resize(INITIAL_PROCESS_LIST_SIZE as usize, 0);
 
         loop {
             let size: u32 = (processes_ids.len() * std::mem::size_of::<i32>()).try_into().unwrap();
 
-            winexec!(K32EnumProcesses(processes_ids.as_mut_ptr(), size, &mut process_count))?;
+            winexec!(K32EnumProcesses(
+                processes_ids.as_mut_ptr(),
+                size,
+                &mut process_buffer_size
+            ))?;
 
-            if (((process_count as usize) / std::mem::size_of::<u32>() == processes_ids.len())
+            if (((process_buffer_size as usize) / std::mem::size_of::<u32>() == processes_ids.len())
                 && processes_ids.len() < MAX_PROCESS_LIST_SIZE)
             {
                 processes_ids.resize(processes_ids.len() * 2, 0);
@@ -83,7 +85,7 @@ impl Process {
             }
         }
 
-        let mut procecess: Vec<Process> = Vec::with_capacity(process_count as usize);
+        let mut procecess: Vec<Process> = Vec::with_capacity(process_buffer_size as usize / std::mem::size_of::<u32>());
         processes_ids.iter().for_each(|item| {
             if (*item != 0) {
                 procecess.push(Process::new(*item));

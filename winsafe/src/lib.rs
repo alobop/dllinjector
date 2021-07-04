@@ -68,8 +68,6 @@ impl WindowsError {
             unsafe { LocalFree(str_ptr as isize) };
             result
         } else {
-            let err = unsafe { GetLastError().0 };
-            println!("{} {:?}", err, str_ptr);
             String::from("Unknown error code")
         };
 
