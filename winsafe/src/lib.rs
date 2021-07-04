@@ -12,7 +12,7 @@ pub struct SafeHandle {
 
 impl Drop for SafeHandle {
     fn drop(&mut self) {
-        if (!self.handle.is_null()) {
+        if !self.handle.is_null() {
             unsafe { CloseHandle(self.handle) };
         }
     }
@@ -96,6 +96,6 @@ pub fn execute<T>(mut fun: impl FnMut() -> T) -> Result<T> {
 #[macro_export]
 macro_rules! winexec {
     ($input:expr) => {
-        crate::process::safe_win::execute(|| unsafe { $input })
+        winsafe::execute(|| unsafe { $input })
     };
 }

@@ -1,8 +1,3 @@
-#![allow(unused_parens)]
-
-#[path = "./safe_win.rs"]
-mod safe_win;
-
 use bindings::Windows::Win32::Foundation::*;
 use bindings::Windows::Win32::System::Diagnostics::Debug::*;
 use bindings::Windows::Win32::System::LibraryLoader::*;
@@ -10,9 +5,7 @@ use bindings::Windows::Win32::System::Memory::*;
 use bindings::Windows::Win32::System::ProcessStatus::*;
 use bindings::Windows::Win32::System::Threading::*;
 use bindings::Windows::Win32::System::WindowsProgramming::*;
-
-use crate::process::safe_win::SafeHandle;
-use crate::winexec;
+use winsafe::{SafeHandle, winexec};
 
 use core::ffi::c_void;
 
@@ -71,7 +64,7 @@ impl Process {
         }
     }
 
-    pub fn list_current_processes() -> safe_win::Result<Vec<Process>> {
+    pub fn list_current_processes() -> winsafe::Result<Vec<Process>> {
         let mut process_count: u32 = 0;
         let mut processes_ids: Vec<u32> = Vec::new();
         processes_ids.resize(INITIAL_PROCESS_LIST_SIZE as usize, 0);
@@ -100,7 +93,7 @@ impl Process {
         return Ok(procecess);
     }
 
-    pub fn inject_dll(&self, dll_path: &str) -> safe_win::Result<()> {
+    pub fn inject_dll(&self, dll_path: &str) -> winsafe::Result<()> {
         let process_handle = winexec!(SafeHandle::from(OpenProcess(PROCESS_ALL_ACCESS, false, self.id)))?;
 
         let dll_path_address = winexec!(VirtualAllocEx(

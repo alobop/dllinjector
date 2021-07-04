@@ -19,6 +19,7 @@ version = "0.1.0"
 dependencies = [
  "bindings",
  "injecteddll",
+ "winsafe",
 ]
 
 [[package]]
@@ -88,4 +89,11 @@ checksum = "bae6942e04aa5792bbf3b3cf5ded1b7590a7ffd76d53ea179210b87911b6587f"
 dependencies = [
  "syn",
  "windows_gen",
+]
+
+[[package]]
+name = "winsafe"
+version = "0.1.0"
+dependencies = [
+ "bindings",
 ]
