@@ -14,9 +14,10 @@ fn main() {
         Windows::Win32::System::LibraryLoader::{GetModuleHandleA, GetProcAddress},
         Windows::Win32::System::ProcessStatus::{K32EnumProcesses, K32GetModuleFileNameExA, K32GetModuleBaseNameA, K32EnumProcessModules},
         // Memory
-        Windows::Win32::System::Diagnostics::Debug::WriteProcessMemory,
+        Windows::Win32::System::Diagnostics::Debug::{WriteProcessMemory, GetLastError, SetLastError, FormatMessageA, FORMAT_MESSAGE_OPTIONS},
         Windows::Win32::System::Memory::{VirtualAllocEx, VIRTUAL_ALLOCATION_TYPE},
-        Windows::Win32::System::Memory::PAGE_TYPE,
+        Windows::Win32::System::Memory::{PAGE_TYPE, LocalFree},
+
         // I/O
         Windows::Win32::Storage::FileSystem::GetFullPathNameA,
     );
