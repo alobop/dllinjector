@@ -10,6 +10,20 @@ use std::convert::TryInto;
 use std::mem;
 use std::u32;
 use std::str;
+use std::fmt;
+use winsafe_dll::{winexec, SafeHandle};
+
+#[derive(Debug)]
+pub struct Process {
+    pub id: u32,
+    pub name: String,
+}
+
+impl fmt::Display for Process {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "[{number:>width$}] {}", self.name, number = self.id, width = 5)
+    }
+}
 
 
 #[no_mangle]
@@ -26,11 +40,9 @@ pub extern "stdcall" fn DllMain(_handle: HINSTANCE, reason: u32, _ptr:*mut c_voi
     return true;
 }
 
-fn enumerate_modules()
+pub fn enumerate_modules()
 {
-    //let h_mods_array_size = 1024;
     let mut h_mods: [HINSTANCE; 1024] = [HINSTANCE::default(); 1024];
-    let h_process: HANDLE;
     let mut cb_needed: u32 = 0;
 
     let mut i = 0;
@@ -38,47 +50,45 @@ fn enumerate_modules()
     let id: u32 = unsafe{ GetCurrentProcessId()};
     println!("Current process ID: {}", id);
 
-    h_process = unsafe{ OpenProcess( PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, id ) };
-    
-    let _name = if h_process.is_null()
-    {
-        String::from("No process")
+    if let Ok(h_process) = winexec!(SafeHandle::from(OpenProcess( PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, id ))){
 
-    } else{
-        String::from("We are good")
-    };
+        // let _name = if h_process.is_null()
+        // {
+        //     String::from("No process")
 
-    let size_h_mods:  u32 = (h_mods.len() * mem::size_of::<HINSTANCE>())
-        .try_into()
-        .unwrap();
+        // } else{
+        //     String::from("We are good")
+        // };
 
-    let enum_mresult: BOOL = unsafe{ K32EnumProcessModules(h_process, h_mods.as_mut_ptr(), size_h_mods, &mut cb_needed)};
+        let size_h_mods:  u32 = (h_mods.len() * mem::size_of::<HINSTANCE>())
+            .try_into()
+            .unwrap();
 
-    if enum_mresult.as_bool()
-    {
-        let size_h_instance:  u32 = (mem::size_of::<HINSTANCE>())
-        .try_into()
-        .unwrap();
 
-        while i < (cb_needed / size_h_instance)
+        if winexec!(K32EnumProcessModules(h_process.handle, h_mods.as_mut_ptr(), size_h_mods, &mut cb_needed))
+        .is_ok()
         {
-            let mut name_vec = vec![0u8; 100];
-            let name_ptr = name_vec.as_mut_ptr();
-            let name = PSTR { 0: name_ptr };
-            let module_file_result = unsafe {  K32GetModuleFileNameExA( h_process, h_mods[i as usize], name, MAX_PATH ) } ;
+            let size_h_instance:  u32 = (mem::size_of::<HINSTANCE>())
+            .try_into()
+            .unwrap();
 
-            if module_file_result > 0 as u32
+            while i < (cb_needed / size_h_instance)
             {
-                let s = str::from_utf8(&name_vec).unwrap();
-                let o_s = String::from(s);
+                let mut name_vec = vec![0u8; 100];
+                let name_ptr = name_vec.as_mut_ptr();
+                let name = PSTR { 0: name_ptr };
+                //let module_file_result = unsafe {  K32GetModuleFileNameExA( h_process, h_mods[i as usize], name, MAX_PATH ) } ;
+                if let Ok(_module_file_result) = winexec!(K32GetModuleFileNameExA( h_process.handle, h_mods[i as usize], name, MAX_PATH ))
+                {
+                    let s = str::from_utf8(&name_vec).unwrap();
+                    let o_s = String::from(s);
 
-                println!("{}", o_s);
+                    println!("{}", o_s);
+                }
+                
+                 i = i + 1;
             }
-
-            i = i + 1;
         }
     }
-    
-    
 
 }
