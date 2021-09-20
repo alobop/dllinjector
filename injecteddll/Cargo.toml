@@ -1,7 +1,7 @@
 [package]
 name = "injecteddll"
 version = "0.1.0"
-authors = ["Alejandro Lobo <alobop@outlook.com>"]
+authors = ["Alejandro Lobo <alobop@outlook.com>, Asher Davila"]
 edition = "2018"
 
 [lib]
@@ -10,8 +10,5 @@ crate_type = ["cdylib"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-windows = "0.11.0"
-
-[build-dependencies]
-windows = "0.11.0"
-
+bindings = { path = "..\\bindings" }
+winsafe = {path = "..\\winsafe"}
